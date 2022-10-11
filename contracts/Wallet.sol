@@ -8,7 +8,7 @@ contract Wallet {
         DEBIT,
         CREDIT
     }
-
+    
     //event to be emitted when a new wallet is created
     event NewWalletCreated(
         bytes32 walletId,
@@ -17,8 +17,7 @@ contract Wallet {
         uint256 timeStampCreated
     );
 
-    //event to be emitted when a new wallet is credited
-
+    //event to be emitted when a wallet is credited
     event WalletCredited(
         bytes32 walletId,
         address walletOwner,
@@ -27,7 +26,7 @@ contract Wallet {
         uint256 timeStampCredited
     );
 
-    //event to be emitted when a new wallet is debited
+    //event to be emitted when a wallet is debited
     event WalletDebited(
         bytes32 walletId,
         address walletOwner,
@@ -55,31 +54,26 @@ contract Wallet {
 
     mapping(bytes32 => CreateWallet) public idToWallet;
 
-    function CreateNewWallet(
-        uint256 timeStampCreated
-    ) external {
+    function CreateNewWallet() external {
         bytes32 walletId = keccak256(
             abi.encodePacked(
                 msg.sender,
                 address(this),
-                timeStampCreated
+                block.timestamp
             )
         );
-        Transaction[] memory transactions;
         // this creates a new wallet struct and adds it to the idToWallet mapping
-        idToWallet[walletId] = CreateWallet(
-            walletId,
-            msg.sender,
-            0,
-            timeStampCreated,
-            transactions
-        );
+        CreateWallet storage wallet = idToWallet[walletId];
+        wallet.walletId = walletId;
+        wallet.walletOwner = msg.sender;
+        wallet.accountBalance = 0;
+        wallet.timeStampCreated = block.timestamp;
 
         emit NewWalletCreated(
             walletId,
             msg.sender,
             0,
-            timeStampCreated
+            block.timestamp
         );
     }
 
